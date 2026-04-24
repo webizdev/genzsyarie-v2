@@ -17,6 +17,7 @@ if (isset($_GET['logout'])) {
     exit;
 }
 
+$db_host = getenv('DB_HOST') ?: ($_SERVER['DB_HOST'] ?? '127.0.0.1');
 $logged_in = isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true;
 
 if (!$logged_in) {

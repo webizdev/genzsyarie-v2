@@ -38,7 +38,7 @@ $target_path = $upload_dir . $filename;
 
 if (move_uploaded_file($file['tmp_name'], $target_path)) {
     // Save to DB
-    $db_host = getenv('DB_HOST') ?: ($_SERVER['DB_HOST'] ?? 'localhost');
+    $db_host = getenv('DB_HOST') ?: ($_SERVER['DB_HOST'] ?? '127.0.0.1');
     $db_name = getenv('DB_NAME') ?: ($_SERVER['DB_NAME'] ?? 'alilogis_syirkahgenz_v2');
     $db_user = getenv('DB_USER') ?: ($_SERVER['DB_USER'] ?? 'alilogis_syirkahgenz_v2');
     $db_pass = getenv('DB_PASS') ?: ($_SERVER['DB_PASS'] ?? 'MBYVUYRynj3uVXcZG8DU');
