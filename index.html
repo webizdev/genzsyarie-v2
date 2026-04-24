@@ -387,13 +387,14 @@
             // In the "Berapa Lama" section, the h2 is in a div that is inside another div. Let's append after the h2.
             h2.parentElement.appendChild(btnContainer);
           }
-          // CTA 2: Under "WHAT YOU WILL LEARN."
-          if (h2.innerText.includes('WHAT YOU') && !h2.parentElement.querySelector('.extra-cta-2')) {
+          // CTA 2: Below "WHAT YOU WILL LEARN" cards
+          if (h2.innerText.includes('WHAT YOU') && !h2.parentElement.parentElement.querySelector('.extra-cta-2')) {
             const btnContainer = document.createElement('div');
             btnContainer.className = 'extra-cta-2';
-            btnContainer.style.marginTop = '40px';
+            btnContainer.style.marginTop = '60px';
+            btnContainer.style.textAlign = 'center';
             btnContainer.innerHTML = '<a href="#register" class="neo-button text-sm" style="display: inline-block;">Daftar Sekarang & Amankan Bisnis Anda</a>';
-            h2.parentElement.appendChild(btnContainer);
+            h2.parentElement.parentElement.appendChild(btnContainer);
           }
         });
       });
