@@ -61,7 +61,6 @@
       min-height: -webkit-fill-available;
     }
 
-    /* Loading spinner */
     .loading-screen {
       position: fixed;
       inset: 0;
@@ -72,6 +71,20 @@
       background: #0a0c10;
       z-index: 9999;
       transition: opacity 0.5s ease;
+      -webkit-animation: hideLoading 3s forwards;
+      animation: hideLoading 3s forwards;
+    }
+
+    @-webkit-keyframes hideLoading {
+      0% { opacity: 1; pointer-events: auto; }
+      80% { opacity: 1; pointer-events: auto; }
+      100% { opacity: 0; pointer-events: none; visibility: hidden; }
+    }
+
+    @keyframes hideLoading {
+      0% { opacity: 1; pointer-events: auto; }
+      80% { opacity: 1; pointer-events: auto; }
+      100% { opacity: 0; pointer-events: none; visibility: hidden; }
     }
 
     .loading-screen.hidden {
