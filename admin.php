@@ -1,0 +1,201 @@
+<?php
+session_start();
+
+$password = 'gs1234';
+
+if (isset($_POST['password'])) {
+    if ($_POST['password'] === $password) {
+        $_SESSION['logged_in'] = true;
+    } else {
+        $error = "Password salah!";
+    }
+}
+
+if (isset($_GET['logout'])) {
+    session_destroy();
+    header("Location: admin.php");
+    exit;
+}
+
+$logged_in = isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true;
+
+if (!$logged_in) {
+    // Show login form
+?>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 h-screen flex items-center justify-center">
+    <div class="bg-white p-8 rounded-xl shadow-md border border-gray-100 w-full max-w-sm">
+        <h2 class="text-2xl font-black text-center mb-6 text-gray-800">Admin Login</h2>
+        <?php if(isset($error)) echo "<p class='text-red-500 text-sm font-semibold text-center mb-4'>$error</p>"; ?>
+        <form method="POST">
+            <input type="password" name="password" placeholder="Masukkan Password" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-800 focus:border-transparent mb-4" required>
+            <button type="submit" class="w-full bg-gray-900 text-white font-bold py-3 rounded-lg hover:bg-black transition">Login Dashboard</button>
+        </form>
+    </div>
+</body>
+</html>
+<?php
+    exit;
+}
+?>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dasbor Admin - Syirkah Bisnis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 p-6 min-h-screen">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-black text-gray-900 tracking-tight">Dasbor Pendaftaran</h1>
+            <a href="?logout=1" class="px-4 py-2 text-sm font-semibold text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition">Logout</a>
+        </div>
+
+        <div class="bg-white shadow-sm rounded-2xl overflow-hidden border border-gray-100">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm whitespace-nowrap">
+                    <thead class="bg-gray-50/50 border-b border-gray-100">
+                        <tr>
+                            <th class="px-6 py-4 font-bold text-gray-600 uppercase text-xs tracking-wider">ID</th>
+                            <th class="px-6 py-4 font-bold text-gray-600 uppercase text-xs tracking-wider">Tanggal</th>
+                            <th class="px-6 py-4 font-bold text-gray-600 uppercase text-xs tracking-wider">Nama Lengkap</th>
+                            <th class="px-6 py-4 font-bold text-gray-600 uppercase text-xs tracking-wider">Kontak</th>
+                            <th class="px-6 py-4 font-bold text-gray-600 uppercase text-xs tracking-wider">Bisnis</th>
+                            <th class="px-6 py-4 font-bold text-gray-600 uppercase text-xs tracking-wider">Bukti Transfer</th>
+                            <th class="px-6 py-4 font-bold text-gray-600 uppercase text-xs tracking-wider">Status</th>
+                            <th class="px-6 py-4 font-bold text-gray-600 uppercase text-xs tracking-wider">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body" class="divide-y divide-gray-50">
+                        <tr>
+                            <td colspan="8" class="px-6 py-8 text-center text-gray-400 font-medium">Memuat data peserta...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Bukti Transfer -->
+    <div id="image-modal" class="fixed inset-0 bg-black/90 hidden items-center justify-center z-50 p-4 backdrop-blur-sm">
+        <div class="relative max-w-3xl w-full flex flex-col items-center">
+            <button onclick="closeModal()" class="absolute -top-12 right-0 text-white/50 hover:text-white font-bold text-sm tracking-widest uppercase transition">&times; Tutup</button>
+            <img id="modal-image" src="" class="max-w-full max-h-[85vh] rounded-lg shadow-2xl" alt="Bukti Transfer">
+            <a id="modal-download" href="" download class="mt-6 px-6 py-2 bg-white text-black font-bold rounded-full text-sm hover:bg-gray-200 transition">Download Resi</a>
+        </div>
+    </div>
+
+    <script>
+        function loadData() {
+            fetch('/api.php')
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    renderTable(data.data);
+                }
+            });
+        }
+
+        function renderTable(rows) {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+            
+            if(rows.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="px-6 py-8 text-center text-gray-400 font-medium">Belum ada pendaftar</td></tr>';
+                return;
+            }
+
+            rows.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50/80 transition";
+                
+                // Status Badge styling
+                let statusBadge = '';
+                if(row.status === 'confirmed') statusBadge = '<span class="px-3 py-1 rounded-md bg-emerald-100 text-emerald-700 text-xs font-bold uppercase tracking-wider border border-emerald-200">Confirmed</span>';
+                else if(row.status === 'tolak') statusBadge = '<span class="px-3 py-1 rounded-md bg-red-100 text-red-700 text-xs font-bold uppercase tracking-wider border border-red-200">Ditolak</span>';
+                else statusBadge = '<span class="px-3 py-1 rounded-md bg-amber-100 text-amber-700 text-xs font-bold uppercase tracking-wider border border-amber-200">Pending</span>';
+
+                // Proof link
+                let proofLink = '<span class="text-gray-400 italic text-xs font-medium bg-gray-100 px-2 py-1 rounded">Belum Upload</span>';
+                if(row.payment_proof) {
+                    const isPdf = row.payment_proof.toLowerCase().endsWith('.pdf');
+                    if(isPdf) {
+                        proofLink = `<a href="/uploads/${row.payment_proof}" target="_blank" class="text-blue-600 hover:text-blue-800 font-bold text-xs bg-blue-50 px-3 py-1.5 rounded-md border border-blue-100 transition">Buka PDF</a>`;
+                    } else {
+                        proofLink = `<button onclick="openModal('/uploads/${row.payment_proof}')" class="text-indigo-600 hover:text-indigo-800 font-bold text-xs bg-indigo-50 px-3 py-1.5 rounded-md border border-indigo-100 transition">Lihat Gambar</button>`;
+                    }
+                }
+
+                // Date formatting
+                const dateObj = new Date(row.created_at);
+                const dateStr = dateObj.toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year:'numeric', hour:'2-digit', minute:'2-digit'});
+
+                tr.innerHTML = `
+                    <td class="px-6 py-4 text-gray-400 font-mono text-xs">#${row.id}</td>
+                    <td class="px-6 py-4 text-gray-500 text-xs">${dateStr}</td>
+                    <td class="px-6 py-4 font-bold text-gray-900">${row.full_name}</td>
+                    <td class="px-6 py-4">
+                        <a href="https://wa.me/${row.whatsapp_number.replace(/^0/, '62')}" target="_blank" class="text-emerald-600 hover:text-emerald-700 font-bold text-sm flex items-center gap-1 group">
+                            <svg class="w-4 h-4 group-hover:scale-110 transition" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+                            ${row.whatsapp_number}
+                        </a>
+                    </td>
+                    <td class="px-6 py-4 text-gray-500 max-w-[200px] truncate text-xs" title="${row.business_activity}">${row.business_activity}</td>
+                    <td class="px-6 py-4">${proofLink}</td>
+                    <td class="px-6 py-4">${statusBadge}</td>
+                    <td class="px-6 py-4 flex gap-2">
+                        <button onclick="updateStatus(${row.id}, 'confirmed')" class="px-3 py-1.5 bg-gray-900 text-white hover:bg-black rounded border border-transparent text-xs font-bold transition">Confirm</button>
+                        <button onclick="updateStatus(${row.id}, 'tolak')" class="px-3 py-1.5 bg-white text-red-600 hover:bg-red-50 rounded border border-red-200 text-xs font-bold transition">Tolak</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function updateStatus(id, newStatus) {
+            const statusLabel = newStatus === 'confirmed' ? 'CONFIRMED' : 'DITOLAK';
+            if(!confirm(`Apakah Anda yakin mengubah status pendaftar ini menjadi ${statusLabel}?`)) return;
+
+            fetch('/api.php', {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({id: id, status: newStatus})
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    loadData();
+                } else {
+                    alert('Gagal mengubah status: ' + data.message);
+                }
+            })
+            .catch(err => alert('Error: ' + err));
+        }
+
+        function openModal(src) {
+            document.getElementById('modal-image').src = src;
+            document.getElementById('modal-download').href = src;
+            document.getElementById('image-modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('image-modal').style.display = 'none';
+        }
+
+        document.getElementById('image-modal').addEventListener('click', function(e) {
+            if(e.target === this) closeModal();
+        });
+
+        loadData();
+    </script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+# Build and Docker files
+Dockerfile
+docker-compose.yml
+
+# Credentials and sensitive information
+credensial.txt
+
+# Test and development scripts
+test_db.php
+migrate.php
+extract.py
+fix_url.php
+test.txt
+output.txt
+
+# Uploaded files (keep directory but ignore files inside)
+uploads/*
+!uploads/.gitkeep
+
+# IDE and OS files
+.vscode/
+.DS_Store
+Thumbs.db
