@@ -31,13 +31,39 @@ if ($conn->connect_error) {
 
 $conn->set_charset('utf8mb4');
 
+// Auto-init site_stats table
+$conn->query("CREATE TABLE IF NOT EXISTS site_stats (
+    stat_key VARCHAR(50) PRIMARY KEY,
+    stat_value INT DEFAULT 0
+)");
+// Ensure initial keys exist
+$conn->query("INSERT IGNORE INTO site_stats (stat_key, stat_value) VALUES ('page_view', 0), ('click_register', 0), ('click_wa', 0)");
+
 // Parse request
 $method = $_SERVER['REQUEST_METHOD'];
 $input = json_decode(file_get_contents('php://input'), true);
 
 switch ($method) {
+        $stmt->close();
+        break;
+
     case 'POST':
-        // Create new registration
+        // Handle Tracking
+        if (isset($_GET['action']) && $_GET['action'] === 'track') {
+            $key = trim($input['key'] ?? '');
+            if (!empty($key)) {
+                $stmt = $conn->prepare("UPDATE site_stats SET stat_value = stat_value + 1 WHERE stat_key = ?");
+                $stmt->bind_param('s', $key);
+                $stmt->execute();
+                $stmt->close();
+                echo json_encode(['success' => true]);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Key is required']);
+            }
+            break;
+        }
+
+        // Create new registration (Original POST logic)
         $full_name = trim($input['full_name'] ?? '');
         $whatsapp = trim($input['whatsapp_number'] ?? '');
         $address = trim($input['corporate_address'] ?? '');
@@ -75,6 +101,17 @@ switch ($method) {
         break;
 
     case 'GET':
+        // Handle Stats retrieval
+        if (isset($_GET['action']) && $_GET['action'] === 'stats') {
+            $result = $conn->query('SELECT * FROM site_stats');
+            $stats = [];
+            while ($row = $result->fetch_assoc()) {
+                $stats[$row['stat_key']] = intval($row['stat_value']);
+            }
+            echo json_encode(['success' => true, 'data' => $stats]);
+            break;
+        }
+
         // Get all registrations (for admin)
         $result = $conn->query('SELECT * FROM registrations ORDER BY created_at DESC');
         $rows = [];

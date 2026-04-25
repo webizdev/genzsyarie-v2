@@ -61,46 +61,100 @@ if (!$logged_in) {
             <a href="?logout=1" class="px-4 py-2 text-sm font-semibold text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition">Logout</a>
         </div>
 
-        <!-- Summary Cards -->
-        <div class="grid grid-cols-3 gap-4 mb-6">
-            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm px-6 py-5 flex flex-col">
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider h-8 flex items-start">Total Peserta</p>
-                <p id="stat-total" class="text-3xl font-black text-gray-900">–</p>
+            <a href="?logout=1" class="px-4 py-2 text-sm font-semibold text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition">Logout</a>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="flex gap-1 mb-8 bg-gray-200/50 p-1 rounded-xl w-fit border border-gray-100">
+            <button onclick="switchTab('pendaftar')" id="tab-btn-pendaftar" class="px-8 py-2.5 rounded-lg text-sm font-black transition-all bg-white text-gray-900 shadow-sm border border-gray-100">📋 Daftar Peserta</button>
+            <button onclick="switchTab('analitik')" id="tab-btn-analitik" class="px-8 py-2.5 rounded-lg text-sm font-black transition-all text-gray-500 hover:text-gray-700">📊 Analitik Situs</button>
+        </div>
+
+        <!-- Tab: Pendaftar -->
+        <div id="section-pendaftar" class="space-y-6">
+            <!-- Summary Cards -->
+            <div class="grid grid-cols-3 gap-4">
+                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm px-6 py-5 flex flex-col">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider h-8 flex items-start">Total Peserta</p>
+                    <p id="stat-total" class="text-3xl font-black text-gray-900">–</p>
+                </div>
+                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm px-6 py-5 flex flex-col">
+                    <p class="text-xs font-bold text-emerald-500 uppercase tracking-wider h-8 flex items-start">Confirmed</p>
+                    <p id="stat-confirmed" class="text-3xl font-black text-emerald-600">–</p>
+                </div>
+                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm px-6 py-5 flex flex-col">
+                    <p class="text-xs font-bold text-amber-500 uppercase tracking-wider h-8 flex items-start">Pending</p>
+                    <p id="stat-pending" class="text-3xl font-black text-amber-500">–</p>
+                </div>
             </div>
-            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm px-6 py-5 flex flex-col">
-                <p class="text-xs font-bold text-emerald-500 uppercase tracking-wider h-8 flex items-start">Confirmed</p>
-                <p id="stat-confirmed" class="text-3xl font-black text-emerald-600">–</p>
-            </div>
-            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm px-6 py-5 flex flex-col">
-                <p class="text-xs font-bold text-amber-500 uppercase tracking-wider h-8 flex items-start">Pending</p>
-                <p id="stat-pending" class="text-3xl font-black text-amber-500">–</p>
+
+            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm whitespace-nowrap">
+                        <thead class="bg-gray-50/50 border-b border-gray-100">
+                            <tr>
+                                <th class="px-6 py-4 font-bold text-gray-600 uppercase text-xs tracking-wider">No.</th>
+                                <th class="px-6 py-4 font-bold text-gray-600 uppercase text-xs tracking-wider">Tanggal</th>
+                                <th class="px-6 py-4 font-bold text-gray-600 uppercase text-xs tracking-wider">Nama Lengkap</th>
+                                <th class="px-6 py-4 font-bold text-gray-600 uppercase text-xs tracking-wider">Kontak</th>
+                                <th class="px-6 py-4 font-bold text-gray-600 uppercase text-xs tracking-wider">Bisnis</th>
+                                <th class="px-6 py-4 font-bold text-gray-600 uppercase text-xs tracking-wider">Bukti Transfer</th>
+                                <th class="px-6 py-4 font-bold text-gray-600 uppercase text-xs tracking-wider">Status</th>
+                                <th class="px-6 py-4 font-bold text-gray-600 uppercase text-xs tracking-wider">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body" class="divide-y divide-gray-50">
+                            <tr>
+                                <td colspan="8" class="px-6 py-8 text-center text-gray-400 font-medium">Memuat data peserta...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
+        <!-- Tab: Analitik -->
+        <div id="section-analitik" class="hidden space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition">
+                        <svg class="w-16 h-16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                    </div>
+                    <p class="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Total Page Views</p>
+                    <h2 id="ana-page-view" class="text-5xl font-black text-gray-900 tracking-tighter">0</h2>
+                    <p class="text-xs text-gray-400 mt-4 font-medium italic">*Jumlah halaman utama dibuka</p>
+                </div>
+                
+                <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition">
+                        <svg class="w-16 h-16" fill="currentColor" viewBox="0 0 24 24"><path d="M9 5v14l11-7L9 5z"/></svg>
+                    </div>
+                    <p class="text-xs font-black text-indigo-500 uppercase tracking-widest mb-2">Klik Tombol Daftar</p>
+                    <h2 id="ana-click-register" class="text-5xl font-black text-gray-900 tracking-tighter">0</h2>
+                    <div class="flex items-center gap-2 mt-4">
+                        <span id="ana-conv-rate" class="px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded text-[10px] font-bold">0% CR</span>
+                        <p class="text-xs text-gray-400 font-medium italic">Conversion Rate</p>
+                    </div>
+                </div>
 
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm whitespace-nowrap">
-                    <thead class="bg-gray-50/50 border-b border-gray-100">
-                        <tr>
-                            <th class="px-6 py-4 font-bold text-gray-600 uppercase text-xs tracking-wider">No.</th>
-                            <th class="px-6 py-4 font-bold text-gray-600 uppercase text-xs tracking-wider">Tanggal</th>
-                            <th class="px-6 py-4 font-bold text-gray-600 uppercase text-xs tracking-wider">Nama Lengkap</th>
-                            <th class="px-6 py-4 font-bold text-gray-600 uppercase text-xs tracking-wider">Kontak</th>
-                            <th class="px-6 py-4 font-bold text-gray-600 uppercase text-xs tracking-wider">Bisnis</th>
-                            <th class="px-6 py-4 font-bold text-gray-600 uppercase text-xs tracking-wider">Bukti Transfer</th>
-                            <th class="px-6 py-4 font-bold text-gray-600 uppercase text-xs tracking-wider">Status</th>
-                            <th class="px-6 py-4 font-bold text-gray-600 uppercase text-xs tracking-wider">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="table-body" class="divide-y divide-gray-50">
-                        <tr>
-                            <td colspan="8" class="px-6 py-8 text-center text-gray-400 font-medium">Memuat data peserta...</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition">
+                        <svg class="w-16 h-16" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+                    </div>
+                    <p class="text-xs font-black text-emerald-500 uppercase tracking-widest mb-2">Klik Konfirmasi WA</p>
+                    <h2 id="ana-click-wa" class="text-5xl font-black text-gray-900 tracking-tighter">0</h2>
+                    <p class="text-xs text-gray-400 mt-4 font-medium italic">*Jumlah klik tombol WA Konfirmasi</p>
+                </div>
+            </div>
+
+            <div class="bg-indigo-900 rounded-3xl p-8 text-white flex flex-col md:flex-row justify-between items-center gap-6">
+                <div>
+                    <h3 class="text-xl font-black mb-1 italic">Kenapa data ini penting?</h3>
+                    <p class="text-indigo-200 text-sm max-w-xl">Semakin besar selisih antara Page View dan Klik Daftar, berarti banyak orang yang mampir tapi belum tertarik daftar. Anda mungkin perlu memperbaiki judul atau penawaran di halaman utama.</p>
+                </div>
+                <button onclick="loadStats()" class="px-6 py-3 bg-white text-indigo-900 font-black rounded-xl hover:bg-indigo-50 transition text-sm">Refresh Analitik</button>
             </div>
         </div>
-    </div>
 
     <!-- Modal Bukti Transfer -->
     <div id="image-modal" class="fixed inset-0 bg-black/90 hidden z-50 overflow-y-auto backdrop-blur-sm" style="display:none;">
@@ -135,6 +189,45 @@ if (!$logged_in) {
     </div>
 
     <script>
+        function switchTab(tab) {
+            const pendaftar = document.getElementById('section-pendaftar');
+            const analitik = document.getElementById('section-analitik');
+            const btnPendaftar = document.getElementById('tab-btn-pendaftar');
+            const btnAnalitik = document.getElementById('tab-btn-analitik');
+
+            if (tab === 'pendaftar') {
+                pendaftar.classList.remove('hidden');
+                analitik.classList.add('hidden');
+                btnPendaftar.className = "px-8 py-2.5 rounded-lg text-sm font-black transition-all bg-white text-gray-900 shadow-sm border border-gray-100";
+                btnAnalitik.className = "px-8 py-2.5 rounded-lg text-sm font-black transition-all text-gray-500 hover:text-gray-700";
+                loadData();
+            } else {
+                pendaftar.classList.add('hidden');
+                analitik.classList.remove('hidden');
+                btnAnalitik.className = "px-8 py-2.5 rounded-lg text-sm font-black transition-all bg-white text-gray-900 shadow-sm border border-gray-100";
+                btnPendaftar.className = "px-8 py-2.5 rounded-lg text-sm font-black transition-all text-gray-500 hover:text-gray-700";
+                loadStats();
+            }
+        }
+
+        function loadStats() {
+            fetch('/api.php?action=stats')
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const s = data.data;
+                    document.getElementById('ana-page-view').textContent = (s.page_view || 0).toLocaleString();
+                    document.getElementById('ana-click-register').textContent = (s.click_register || 0).toLocaleString();
+                    document.getElementById('ana-click-wa').textContent = (s.click_wa || 0).toLocaleString();
+                    
+                    if (s.page_view > 0) {
+                        const rate = ((s.click_register / s.page_view) * 100).toFixed(1);
+                        document.getElementById('ana-conv-rate').textContent = rate + '% CR';
+                    }
+                }
+            });
+        }
+
         function loadData() {
             fetch('/api.php')
             .then(res => res.json())

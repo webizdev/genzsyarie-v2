@@ -219,6 +219,14 @@
   </script>
   <!-- Payment Portal Injection Script -->
   <script>
+    function trackAction(key) {
+      fetch('/api.php?action=track', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: key })
+      }).catch(err => console.error('Tracking failed:', err));
+    }
+
     function initPaymentPortal() {
       const observer = new MutationObserver(() => {
         const portal = document.getElementById('payment-portal');
@@ -334,6 +342,7 @@
                   const text = encodeURIComponent(`Halo admin *Genz Syar'ie*, saya sudah melakukan pendaftaran atas nama *${fullName}* dan telah mengunggah resi bukti transfer pembayaran.`);
                   waBtn.href = `https://wa.me/6285247028543?text=${text}`;
                   waBtn.style.display = 'block';
+                  waBtn.onclick = () => trackAction('click_wa');
                 } else {
                   throw new Error(data.message || 'Gagal mengunggah');
                 }
@@ -402,7 +411,7 @@
             btnContainer.className = 'extra-cta-1';
             btnContainer.style.marginTop = '30px';
             btnContainer.style.textAlign = 'left';
-            btnContainer.innerHTML = '<a href="#register" class="neo-button text-sm" style="display: inline-block;">Daftar Sekarang & Amankan Bisnis Anda</a>';
+            btnContainer.innerHTML = '<a href="#register" onclick="trackAction(\'click_register\')" class="neo-button text-sm" style="display: inline-block;">Daftar Sekarang & Amankan Bisnis Anda</a>';
             // In the "Berapa Lama" section, the h2 is in a div that is inside another div. Let's append after the h2.
             h2.parentElement.appendChild(btnContainer);
           }
@@ -412,7 +421,7 @@
             btnContainer.className = 'extra-cta-2';
             btnContainer.style.marginTop = '60px';
             btnContainer.style.textAlign = 'center';
-            btnContainer.innerHTML = '<a href="#register" class="neo-button text-sm" style="display: inline-block;">Daftar Sekarang & Amankan Bisnis Anda</a>';
+            btnContainer.innerHTML = '<a href="#register" onclick="trackAction(\'click_register\')" class="neo-button text-sm" style="display: inline-block;">Daftar Sekarang & Amankan Bisnis Anda</a>';
             h2.parentElement.parentElement.appendChild(btnContainer);
           }
         });
@@ -425,6 +434,7 @@
 
     // Fast loading screen hide
     window.addEventListener('load', () => {
+      trackAction('page_view');
       const loader = document.getElementById('loading-screen');
       if (loader) {
         loader.style.opacity = '0';
