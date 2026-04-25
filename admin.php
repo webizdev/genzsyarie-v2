@@ -63,16 +63,16 @@ if (!$logged_in) {
 
         <!-- Summary Cards -->
         <div class="grid grid-cols-3 gap-4 mb-6">
-            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm px-6 py-5">
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Total Peserta</p>
+            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm px-6 py-5 flex flex-col">
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider h-8 flex items-start">Total Peserta</p>
                 <p id="stat-total" class="text-3xl font-black text-gray-900">–</p>
             </div>
-            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm px-6 py-5">
-                <p class="text-xs font-bold text-emerald-500 uppercase tracking-wider mb-1">Confirmed</p>
+            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm px-6 py-5 flex flex-col">
+                <p class="text-xs font-bold text-emerald-500 uppercase tracking-wider h-8 flex items-start">Confirmed</p>
                 <p id="stat-confirmed" class="text-3xl font-black text-emerald-600">–</p>
             </div>
-            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm px-6 py-5">
-                <p class="text-xs font-bold text-amber-500 uppercase tracking-wider mb-1">Pending</p>
+            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm px-6 py-5 flex flex-col">
+                <p class="text-xs font-bold text-amber-500 uppercase tracking-wider h-8 flex items-start">Pending</p>
                 <p id="stat-pending" class="text-3xl font-black text-amber-500">–</p>
             </div>
         </div>
