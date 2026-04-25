@@ -61,12 +61,28 @@ if (!$logged_in) {
             <a href="?logout=1" class="px-4 py-2 text-sm font-semibold text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition">Logout</a>
         </div>
 
-        <div class="bg-white shadow-sm rounded-2xl overflow-hidden border border-gray-100">
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-3 gap-4 mb-6">
+            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm px-6 py-5">
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Total Peserta</p>
+                <p id="stat-total" class="text-3xl font-black text-gray-900">–</p>
+            </div>
+            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm px-6 py-5">
+                <p class="text-xs font-bold text-emerald-500 uppercase tracking-wider mb-1">Confirmed</p>
+                <p id="stat-confirmed" class="text-3xl font-black text-emerald-600">–</p>
+            </div>
+            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm px-6 py-5">
+                <p class="text-xs font-bold text-amber-500 uppercase tracking-wider mb-1">Pending</p>
+                <p id="stat-pending" class="text-3xl font-black text-amber-500">–</p>
+            </div>
+        </div>
+
+
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm whitespace-nowrap">
                     <thead class="bg-gray-50/50 border-b border-gray-100">
                         <tr>
-                            <th class="px-6 py-4 font-bold text-gray-600 uppercase text-xs tracking-wider">ID</th>
+                            <th class="px-6 py-4 font-bold text-gray-600 uppercase text-xs tracking-wider">No.</th>
                             <th class="px-6 py-4 font-bold text-gray-600 uppercase text-xs tracking-wider">Tanggal</th>
                             <th class="px-6 py-4 font-bold text-gray-600 uppercase text-xs tracking-wider">Nama Lengkap</th>
                             <th class="px-6 py-4 font-bold text-gray-600 uppercase text-xs tracking-wider">Kontak</th>
@@ -115,7 +131,7 @@ if (!$logged_in) {
                 return;
             }
 
-            rows.forEach(row => {
+            rows.forEach((row, index) => {
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-gray-50/80 transition";
                 
@@ -141,7 +157,7 @@ if (!$logged_in) {
                 const dateStr = dateObj.toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year:'numeric', hour:'2-digit', minute:'2-digit'});
 
                 tr.innerHTML = `
-                    <td class="px-6 py-4 text-gray-400 font-mono text-xs">#${row.id}</td>
+                    <td class="px-6 py-4 text-gray-400 font-mono text-xs">${index + 1}</td>
                     <td class="px-6 py-4 text-gray-500 text-xs">${dateStr}</td>
                     <td class="px-6 py-4 font-bold text-gray-900">${row.full_name}</td>
                     <td class="px-6 py-4">
@@ -160,6 +176,14 @@ if (!$logged_in) {
                 `;
                 tbody.appendChild(tr);
             });
+
+            // Update statistik
+            const total = rows.length;
+            const confirmed = rows.filter(r => r.status === 'confirmed').length;
+            const pending = rows.filter(r => r.status === 'pending' || !r.status || (r.status !== 'confirmed' && r.status !== 'tolak')).length;
+            document.getElementById('stat-total').textContent = total;
+            document.getElementById('stat-confirmed').textContent = confirmed;
+            document.getElementById('stat-pending').textContent = pending;
         }
 
         function updateStatus(id, newStatus) {
