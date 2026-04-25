@@ -110,6 +110,19 @@ switch ($method) {
             exit;
         }
 
+        // Cek duplikasi nomor WhatsApp
+        $checkStmt = $conn->prepare("SELECT id FROM registrations WHERE whatsapp_number = ?");
+        $checkStmt->bind_param('s', $whatsapp);
+        $checkStmt->execute();
+        $checkResult = $checkStmt->get_result();
+        if ($checkResult->num_rows > 0) {
+            http_response_code(409); // Conflict
+            echo json_encode(['success' => false, 'message' => 'Nomor WhatsApp ini sudah terdaftar sebelumnya.']);
+            $checkStmt->close();
+            exit;
+        }
+        $checkStmt->close();
+
         $stmt = $conn->prepare('INSERT INTO registrations (full_name, whatsapp_number, corporate_address, business_activity, status) VALUES (?, ?, ?, ?, ?)');
         $status = 'pending';
         $stmt->bind_param('sssss', $full_name, $whatsapp, $address, $business_activity, $status);
