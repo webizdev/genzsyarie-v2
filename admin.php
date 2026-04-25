@@ -58,7 +58,13 @@ if (!$logged_in) {
     <div class="max-w-7xl mx-auto">
         <div class="flex justify-between items-center mb-8">
             <h1 class="text-3xl font-black text-gray-900 tracking-tight">Dasbor Pendaftaran</h1>
-            <a href="?logout=1" class="px-4 py-2 text-sm font-semibold text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition">Logout</a>
+            <div class="flex gap-2">
+                <button onclick="openGlobalQR()" class="px-4 py-2 text-sm font-bold text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M3 3h8v8H3V3zm2 2v4h4V5H5zm8-2h8v8h-8V3zm2 2v4h4V5h-4zM3 13h8v8H3v-8zm2 2v4h4v-4H5zm13-2h3v2h-3v-2zm-3 0h2v3h-2v-3zm3 3h3v2h-3v-2zm-3 2h2v3h-2v-3zm3 3h3v2h-3v-2zm-3-1h2v1h-2v-1zm1-4h1v1h-1v-1zm3-3h1v1h-1v-1zm-3 3h1v1h-1v-1z"/></svg>
+                    Cetak QR Check-In
+                </button>
+                <a href="?logout=1" class="px-4 py-2 text-sm font-semibold text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition">Logout</a>
+            </div>
         </div>
 
 
@@ -71,7 +77,7 @@ if (!$logged_in) {
         <!-- Tab: Pendaftar -->
         <div id="section-pendaftar" class="space-y-6">
             <!-- Summary Cards -->
-            <div class="grid grid-cols-3 gap-4">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div class="bg-white rounded-2xl border border-gray-100 shadow-sm px-6 py-5 flex flex-col">
                     <p class="text-xs font-bold text-gray-400 uppercase tracking-wider h-8 flex items-start">Total Peserta</p>
                     <p id="stat-total" class="text-3xl font-black text-gray-900">–</p>
@@ -83,6 +89,10 @@ if (!$logged_in) {
                 <div class="bg-white rounded-2xl border border-gray-100 shadow-sm px-6 py-5 flex flex-col">
                     <p class="text-xs font-bold text-amber-500 uppercase tracking-wider h-8 flex items-start">Pending</p>
                     <p id="stat-pending" class="text-3xl font-black text-amber-500">–</p>
+                </div>
+                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm px-6 py-5 flex flex-col">
+                    <p class="text-xs font-bold text-indigo-600 uppercase tracking-wider h-8 flex items-start">Hadir</p>
+                    <p id="stat-hadir" class="text-3xl font-black text-indigo-600">–</p>
                 </div>
             </div>
 
@@ -96,14 +106,15 @@ if (!$logged_in) {
                                 <th class="px-6 py-4 font-bold text-gray-600 uppercase text-xs tracking-wider">Nama Lengkap</th>
                                 <th class="px-6 py-4 font-bold text-gray-600 uppercase text-xs tracking-wider">Kontak</th>
                                 <th class="px-6 py-4 font-bold text-gray-600 uppercase text-xs tracking-wider">Bisnis</th>
-                                <th class="px-6 py-4 font-bold text-gray-600 uppercase text-xs tracking-wider">Bukti Transfer</th>
+                                <th class="px-6 py-4 font-bold text-gray-600 uppercase text-xs tracking-wider">Bukti</th>
                                 <th class="px-6 py-4 font-bold text-gray-600 uppercase text-xs tracking-wider">Status</th>
+                                <th class="px-6 py-4 font-bold text-gray-600 uppercase text-xs tracking-wider">Check-In</th>
                                 <th class="px-6 py-4 font-bold text-gray-600 uppercase text-xs tracking-wider">Aksi</th>
                             </tr>
                         </thead>
                         <tbody id="table-body" class="divide-y divide-gray-50">
                             <tr>
-                                <td colspan="8" class="px-6 py-8 text-center text-gray-400 font-medium">Memuat data peserta...</td>
+                                <td colspan="9" class="px-6 py-8 text-center text-gray-400 font-medium">Memuat data peserta...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -189,8 +200,8 @@ if (!$logged_in) {
     <!-- Modal QR Code -->
     <div id="qr-modal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 backdrop-blur-sm p-4" style="display:none;">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-8 text-center">
-            <h3 class="font-black text-gray-900 text-xl mb-1">QR Code Check-in</h3>
-            <p id="qr-modal-name" class="text-gray-500 text-sm mb-6 font-medium"></p>
+            <h3 class="font-black text-gray-900 text-xl mb-1">Cetak QR Check-in</h3>
+            <p id="qr-modal-name" class="text-gray-500 text-sm mb-6 font-medium">Tempel QR ini di pintu masuk acara</p>
             
             <div class="bg-gray-50 p-4 rounded-2xl mb-6 inline-block border border-gray-100">
                 <img id="qr-image" src="" alt="QR Code" class="w-48 h-48 mx-auto">
@@ -295,15 +306,12 @@ if (!$logged_in) {
                 const dateObj = new Date(row.created_at);
                 const dateStr = dateObj.toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year:'numeric', hour:'2-digit', minute:'2-digit'});
 
-                // QR Button
-                let qrBtn = '';
-                if(row.status === 'confirmed') {
-                    qrBtn = `
-                        <button onclick="openQR('${row.whatsapp_number}', '${row.full_name}')" class="px-3 py-1.5 bg-indigo-600 text-white hover:bg-indigo-700 rounded border border-transparent text-xs font-bold transition flex items-center gap-1" title="Generate QR Check-in">
-                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M3 3h8v8H3V3zm2 2v4h4V5H5zm8-2h8v8h-8V3zm2 2v4h4V5h-4zM3 13h8v8H3v-8zm2 2v4h4v-4H5zm13-2h3v2h-3v-2zm-3 0h2v3h-2v-3zm3 3h3v2h-3v-2zm-3 2h2v3h-2v-3zm3 3h3v2h-3v-2zm-3-1h2v1h-2v-1zm1-4h1v1h-1v-1zm3-3h1v1h-1v-1zm-3 3h1v1h-1v-1z"/></svg>
-                            QR
-                        </button>
-                    `;
+                // Check-in status
+                let checkinStatus = '<span class="text-gray-300 italic text-[10px] font-bold">BELUM HADIR</span>';
+                if(row.checked_in_at) {
+                    const cDate = new Date(row.checked_in_at);
+                    const cTime = cDate.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
+                    checkinStatus = `<span class="px-2 py-1 rounded bg-indigo-50 text-indigo-600 text-[10px] font-black border border-indigo-100">${cTime} WIB</span>`;
                 }
 
                 tr.innerHTML = `
@@ -319,8 +327,8 @@ if (!$logged_in) {
                     <td class="px-6 py-4 text-gray-500 max-w-[200px] truncate text-xs" title="${row.business_activity}">${row.business_activity}</td>
                     <td class="px-6 py-4">${proofLink}</td>
                     <td class="px-6 py-4">${statusBadge}</td>
+                    <td class="px-6 py-4">${checkinStatus}</td>
                     <td class="px-6 py-4 flex gap-2">
-                        ${qrBtn}
                         <button onclick="updateStatus(${row.id}, 'confirmed')" class="px-3 py-1.5 bg-gray-900 text-white hover:bg-black rounded border border-transparent text-xs font-bold transition">Confirm</button>
                         <button onclick="updateStatus(${row.id}, 'tolak')" class="px-3 py-1.5 bg-white text-red-600 hover:bg-red-50 rounded border border-red-200 text-xs font-bold transition">Tolak</button>
                         <button onclick="deleteRow(${row.id}, '${row.full_name}')" class="px-3 py-1.5 bg-red-600 text-white hover:bg-red-700 rounded border border-transparent text-xs font-bold transition" title="Hapus peserta">&times;</button>
@@ -333,9 +341,12 @@ if (!$logged_in) {
             const total = rows.length;
             const confirmed = rows.filter(r => r.status === 'confirmed').length;
             const pending = rows.filter(r => r.status === 'pending' || !r.status || (r.status !== 'confirmed' && r.status !== 'tolak')).length;
+            const hadir = rows.filter(r => r.checked_in_at).length;
+
             document.getElementById('stat-total').textContent = total;
             document.getElementById('stat-confirmed').textContent = confirmed;
             document.getElementById('stat-pending').textContent = pending;
+            document.getElementById('stat-hadir').textContent = hadir;
         }
 
         let _uploadingWhatsapp = null;
@@ -457,11 +468,11 @@ if (!$logged_in) {
             if(e.target === this) closeModal();
         });
 
-        function openQR(wa, name) {
-            const checkinUrl = window.location.origin + window.location.pathname.replace('admin.php', 'checkin.php') + '?wa=' + wa;
-            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(checkinUrl)}`;
+        function openGlobalQR() {
+            const checkinUrl = window.location.origin + window.location.pathname.replace('admin.php', 'checkin.php');
+            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(checkinUrl)}`;
             
-            document.getElementById('qr-modal-name').textContent = name;
+            document.getElementById('qr-modal-name').textContent = "Tempel QR ini di pintu masuk acara";
             document.getElementById('qr-image').src = qrApiUrl;
             document.getElementById('qr-download').href = qrApiUrl;
             document.getElementById('qr-modal').style.display = 'flex';
