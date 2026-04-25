@@ -63,9 +63,9 @@ if (!$logged_in) {
 
 
         <!-- Tab Navigation -->
-        <div class="flex gap-1 mb-8 bg-gray-200/50 p-1 rounded-xl w-fit border border-gray-100">
-            <button onclick="switchTab('pendaftar')" id="tab-btn-pendaftar" class="px-8 py-2.5 rounded-lg text-sm font-black transition-all bg-white text-gray-900 shadow-sm border border-gray-100">📋 Daftar Peserta</button>
-            <button onclick="switchTab('analitik')" id="tab-btn-analitik" class="px-8 py-2.5 rounded-lg text-sm font-black transition-all text-gray-500 hover:text-gray-700">📊 Analitik Situs</button>
+        <div class="flex gap-1 mb-6 bg-gray-100 p-1 rounded-lg w-fit">
+            <button onclick="switchTab('pendaftar')" id="tab-btn-pendaftar" class="px-4 py-2 rounded-md text-sm font-medium transition-all bg-white text-gray-900 shadow-sm border border-gray-100">📋 Daftar Peserta</button>
+            <button onclick="switchTab('analitik')" id="tab-btn-analitik" class="px-4 py-2 rounded-md text-sm font-medium transition-all text-gray-500 hover:text-gray-700">📊 Analitik Situs</button>
         </div>
 
         <!-- Tab: Pendaftar -->
@@ -196,14 +196,14 @@ if (!$logged_in) {
             if (tab === 'pendaftar') {
                 pendaftar.classList.remove('hidden');
                 analitik.classList.add('hidden');
-                btnPendaftar.className = "px-8 py-2.5 rounded-lg text-sm font-black transition-all bg-white text-gray-900 shadow-sm border border-gray-100";
-                btnAnalitik.className = "px-8 py-2.5 rounded-lg text-sm font-black transition-all text-gray-500 hover:text-gray-700";
+                btnPendaftar.className = "px-4 py-2 rounded-md text-sm font-medium transition-all bg-white text-gray-900 shadow-sm border border-gray-100";
+                btnAnalitik.className = "px-4 py-2 rounded-md text-sm font-medium transition-all text-gray-500 hover:text-gray-700";
                 loadData();
             } else {
                 pendaftar.classList.add('hidden');
                 analitik.classList.remove('hidden');
-                btnAnalitik.className = "px-8 py-2.5 rounded-lg text-sm font-black transition-all bg-white text-gray-900 shadow-sm border border-gray-100";
-                btnPendaftar.className = "px-8 py-2.5 rounded-lg text-sm font-black transition-all text-gray-500 hover:text-gray-700";
+                btnAnalitik.className = "px-4 py-2 rounded-md text-sm font-medium transition-all bg-white text-gray-900 shadow-sm border border-gray-100";
+                btnPendaftar.className = "px-4 py-2 rounded-md text-sm font-medium transition-all text-gray-500 hover:text-gray-700";
                 loadStats();
             }
         }
