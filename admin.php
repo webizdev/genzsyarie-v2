@@ -211,7 +211,7 @@ if (!$logged_in) {
         }
 
         function loadStats() {
-            fetch('/api.php?action=stats')
+            fetch('api.php?action=stats')
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
@@ -229,7 +229,7 @@ if (!$logged_in) {
         }
 
         function loadData() {
-            fetch('/api.php')
+            fetch('api.php')
             .then(res => res.json())
             .then(data => {
                 if(data.success) {
@@ -328,7 +328,7 @@ if (!$logged_in) {
             // Overlay loading simple
             const btn = event ? event.target : null;
             
-            fetch('/upload_proof.php', {
+            fetch('upload_proof.php', {
                 method: 'POST',
                 body: formData
             })
@@ -375,7 +375,7 @@ if (!$logged_in) {
             btn.textContent = 'Menghapus...';
             btn.disabled = true;
 
-            fetch('/api.php', {
+            fetch('api.php', {
                 method: 'DELETE',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({id: _deleteId})
@@ -396,7 +396,7 @@ if (!$logged_in) {
             const statusLabel = newStatus === 'confirmed' ? 'CONFIRMED' : 'DITOLAK';
             if(!confirm(`Apakah Anda yakin mengubah status pendaftar ini menjadi ${statusLabel}?`)) return;
 
-            fetch('/api.php', {
+            fetch('api.php', {
                 method: 'PUT',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({id: id, status: newStatus})

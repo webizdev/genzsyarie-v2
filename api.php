@@ -44,9 +44,6 @@ $method = $_SERVER['REQUEST_METHOD'];
 $input = json_decode(file_get_contents('php://input'), true);
 
 switch ($method) {
-        $stmt->close();
-        break;
-
     case 'POST':
         // Handle Tracking
         if (isset($_GET['action']) && $_GET['action'] === 'track') {

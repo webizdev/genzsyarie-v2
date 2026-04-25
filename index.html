@@ -220,7 +220,7 @@
   <!-- Payment Portal Injection Script -->
   <script>
     function trackAction(key) {
-      fetch('/api.php?action=track', {
+      fetch('api.php?action=track', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ key: key })
