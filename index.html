@@ -71,21 +71,9 @@
       background: #0a0c10;
       z-index: 9999;
       transition: opacity 0.5s ease;
-      -webkit-animation: hideLoading 3s forwards;
-      animation: hideLoading 3s forwards;
     }
 
-    @-webkit-keyframes hideLoading {
-      0% { opacity: 1; pointer-events: auto; }
-      80% { opacity: 1; pointer-events: auto; }
-      100% { opacity: 0; pointer-events: none; visibility: hidden; }
-    }
 
-    @keyframes hideLoading {
-      0% { opacity: 1; pointer-events: auto; }
-      80% { opacity: 1; pointer-events: auto; }
-      100% { opacity: 0; pointer-events: none; visibility: hidden; }
-    }
 
     .loading-screen.hidden {
       opacity: 0;
@@ -175,7 +163,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
-    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=Playfair+Display:wght@400;700&display=swap"
     rel="stylesheet" />
 
   <script type="module" crossorigin src="/assets/index-B23kGy9D.js"></script>
@@ -434,6 +422,29 @@
     
     initCTAs();
     initPaymentPortal();
+
+    // Fast loading screen hide
+    window.addEventListener('load', () => {
+      const loader = document.getElementById('loading-screen');
+      if (loader) {
+        loader.style.opacity = '0';
+        loader.style.pointerEvents = 'none';
+        setTimeout(() => {
+          loader.style.display = 'none';
+          loader.classList.add('hidden');
+        }, 500);
+      }
+    });
+
+    // Safety timeout in case window.load takes too long (e.g. slow image)
+    setTimeout(() => {
+      const loader = document.getElementById('loading-screen');
+      if (loader && loader.style.display !== 'none') {
+        loader.style.opacity = '0';
+        loader.style.pointerEvents = 'none';
+        setTimeout(() => loader.style.display = 'none', 500);
+      }
+    }, 5000);
   </script>
 </body>
 
