@@ -363,8 +363,7 @@ if (!$logged_in) {
             formData.append('payment_proof', file);
             formData.append('whatsapp', _uploadingWhatsapp);
 
-            // Overlay loading simple
-            const btn = event ? event.target : null;
+            const btn = input;
             
             fetch('upload_proof.php', {
                 method: 'POST',
@@ -392,13 +391,17 @@ if (!$logged_in) {
             document.getElementById('delete-modal-name').textContent = name;
             document.getElementById('delete-confirm-input').value = '';
             document.getElementById('delete-confirm-btn').disabled = true;
-            document.getElementById('delete-modal').style.display = 'flex';
+            const modal = document.getElementById('delete-modal');
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
             setTimeout(() => document.getElementById('delete-confirm-input').focus(), 100);
         }
 
         function closeDeleteModal() {
-            document.getElementById('delete-modal').style.display = 'none';
+            const modal = document.getElementById('delete-modal');
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
             document.body.style.overflow = '';
             _deleteId = null;
         }
@@ -430,7 +433,8 @@ if (!$logged_in) {
             .catch(err => { closeDeleteModal(); alert('Error: ' + err); });
         }
 
-        function updateStatus(id, newStatus) {
+        window.updateStatus = function(id, newStatus) {
+            console.log('updateStatus triggered:', id, newStatus);
             const statusLabel = newStatus === 'confirmed' ? 'CONFIRMED' : 'DITOLAK';
             if(!confirm(`Apakah Anda yakin mengubah status pendaftar ini menjadi ${statusLabel}?`)) return;
 
@@ -454,13 +458,16 @@ if (!$logged_in) {
             document.getElementById('modal-image').src = src;
             document.getElementById('modal-download').href = src;
             const modal = document.getElementById('image-modal');
+            modal.classList.remove('hidden');
             modal.style.display = 'block';
             modal.scrollTop = 0;
             document.body.style.overflow = 'hidden';
         }
 
         function closeModal() {
-            document.getElementById('image-modal').style.display = 'none';
+            const modal = document.getElementById('image-modal');
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
             document.body.style.overflow = '';
         }
 
@@ -475,12 +482,16 @@ if (!$logged_in) {
             document.getElementById('qr-modal-name').textContent = "Tempel QR ini di pintu masuk acara";
             document.getElementById('qr-image').src = qrApiUrl;
             document.getElementById('qr-download').href = qrApiUrl;
-            document.getElementById('qr-modal').style.display = 'flex';
+            const modal = document.getElementById('qr-modal');
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
         }
 
         function closeQRModal() {
-            document.getElementById('qr-modal').style.display = 'none';
+            const modal = document.getElementById('qr-modal');
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
             document.body.style.overflow = '';
         }
 
