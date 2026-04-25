@@ -39,12 +39,50 @@ $conn->query("CREATE TABLE IF NOT EXISTS site_stats (
 // Ensure initial keys exist
 $conn->query("INSERT IGNORE INTO site_stats (stat_key, stat_value) VALUES ('page_view', 0), ('click_register', 0), ('click_wa', 0)");
 
+// Auto-init checked_in_at column in registrations
+$conn->query("ALTER TABLE registrations ADD COLUMN IF NOT EXISTS checked_in_at DATETIME DEFAULT NULL");
+
 // Parse request
 $method = $_SERVER['REQUEST_METHOD'];
 $input = json_decode(file_get_contents('php://input'), true);
 
 switch ($method) {
+        $stmt->close();
+        break;
+
     case 'POST':
+        // Handle Check-in
+        if (isset($_GET['action']) && $_GET['action'] === 'checkin') {
+            $whatsapp = trim($input['whatsapp'] ?? '');
+            if (empty($whatsapp)) {
+                echo json_encode(['success' => false, 'message' => 'Nomor WhatsApp diperlukan']);
+                break;
+            }
+
+            // Check if participant exists and is confirmed
+            $stmt = $conn->prepare("SELECT id, full_name, checked_in_at FROM registrations WHERE whatsapp_number = ? AND status = 'confirmed'");
+            $stmt->bind_param('s', $whatsapp);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $user = $result->fetch_assoc();
+            $stmt->close();
+
+            if (!$user) {
+                http_response_code(404);
+                echo json_encode(['success' => false, 'message' => 'Peserta tidak ditemukan atau belum dikonfirmasi']);
+            } else if ($user['checked_in_at'] !== null) {
+                echo json_encode(['success' => true, 'already' => true, 'name' => $user['full_name'], 'at' => $user['checked_in_at']]);
+            } else {
+                $now = date('Y-m-d H:i:s');
+                $update = $conn->prepare("UPDATE registrations SET checked_in_at = ? WHERE id = ?");
+                $update->bind_param('si', $now, $user['id']);
+                $update->execute();
+                $update->close();
+                echo json_encode(['success' => true, 'already' => false, 'name' => $user['full_name'], 'at' => $now]);
+            }
+            break;
+        }
+
         // Handle Tracking
         if (isset($_GET['action']) && $_GET['action'] === 'track') {
             $key = trim($input['key'] ?? '');

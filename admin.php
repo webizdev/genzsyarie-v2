@@ -186,6 +186,23 @@ if (!$logged_in) {
         </div>
     </div>
 
+    <!-- Modal QR Code -->
+    <div id="qr-modal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 backdrop-blur-sm p-4" style="display:none;">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-8 text-center">
+            <h3 class="font-black text-gray-900 text-xl mb-1">QR Code Check-in</h3>
+            <p id="qr-modal-name" class="text-gray-500 text-sm mb-6 font-medium"></p>
+            
+            <div class="bg-gray-50 p-4 rounded-2xl mb-6 inline-block border border-gray-100">
+                <img id="qr-image" src="" alt="QR Code" class="w-48 h-48 mx-auto">
+            </div>
+            
+            <div class="space-y-3">
+                <button onclick="closeQRModal()" class="w-full px-4 py-3 bg-gray-900 text-white font-black rounded-xl text-sm hover:bg-black transition shadow-lg">Tutup</button>
+                <a id="qr-download" target="_blank" href="" class="block text-xs font-bold text-gray-400 hover:text-gray-600 uppercase tracking-widest transition">Buka File QR</a>
+            </div>
+        </div>
+    </div>
+
     <script>
         function switchTab(tab) {
             const pendaftar = document.getElementById('section-pendaftar');
@@ -278,6 +295,17 @@ if (!$logged_in) {
                 const dateObj = new Date(row.created_at);
                 const dateStr = dateObj.toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year:'numeric', hour:'2-digit', minute:'2-digit'});
 
+                // QR Button
+                let qrBtn = '';
+                if(row.status === 'confirmed') {
+                    qrBtn = `
+                        <button onclick="openQR('${row.whatsapp_number}', '${row.full_name}')" class="px-3 py-1.5 bg-indigo-600 text-white hover:bg-indigo-700 rounded border border-transparent text-xs font-bold transition flex items-center gap-1" title="Generate QR Check-in">
+                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M3 3h8v8H3V3zm2 2v4h4V5H5zm8-2h8v8h-8V3zm2 2v4h4V5h-4zM3 13h8v8H3v-8zm2 2v4h4v-4H5zm13-2h3v2h-3v-2zm-3 0h2v3h-2v-3zm3 3h3v2h-3v-2zm-3 2h2v3h-2v-3zm3 3h3v2h-3v-2zm-3-1h2v1h-2v-1zm1-4h1v1h-1v-1zm3-3h1v1h-1v-1zm-3 3h1v1h-1v-1z"/></svg>
+                            QR
+                        </button>
+                    `;
+                }
+
                 tr.innerHTML = `
                     <td class="px-6 py-4 text-gray-400 font-mono text-xs">${index + 1}</td>
                     <td class="px-6 py-4 text-gray-500 text-xs">${dateStr}</td>
@@ -292,6 +320,7 @@ if (!$logged_in) {
                     <td class="px-6 py-4">${proofLink}</td>
                     <td class="px-6 py-4">${statusBadge}</td>
                     <td class="px-6 py-4 flex gap-2">
+                        ${qrBtn}
                         <button onclick="updateStatus(${row.id}, 'confirmed')" class="px-3 py-1.5 bg-gray-900 text-white hover:bg-black rounded border border-transparent text-xs font-bold transition">Confirm</button>
                         <button onclick="updateStatus(${row.id}, 'tolak')" class="px-3 py-1.5 bg-white text-red-600 hover:bg-red-50 rounded border border-red-200 text-xs font-bold transition">Tolak</button>
                         <button onclick="deleteRow(${row.id}, '${row.full_name}')" class="px-3 py-1.5 bg-red-600 text-white hover:bg-red-700 rounded border border-transparent text-xs font-bold transition" title="Hapus peserta">&times;</button>
@@ -427,6 +456,22 @@ if (!$logged_in) {
         document.getElementById('image-modal').addEventListener('click', function(e) {
             if(e.target === this) closeModal();
         });
+
+        function openQR(wa, name) {
+            const checkinUrl = window.location.origin + window.location.pathname.replace('admin.php', 'checkin.php') + '?wa=' + wa;
+            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(checkinUrl)}`;
+            
+            document.getElementById('qr-modal-name').textContent = name;
+            document.getElementById('qr-image').src = qrApiUrl;
+            document.getElementById('qr-download').href = qrApiUrl;
+            document.getElementById('qr-modal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeQRModal() {
+            document.getElementById('qr-modal').style.display = 'none';
+            document.body.style.overflow = '';
+        }
 
         loadData();
     </script>
