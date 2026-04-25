@@ -61,7 +61,7 @@ if (!$logged_in) {
             <div class="flex gap-2">
                 <button onclick="openGlobalQR()" class="px-4 py-2 text-sm font-bold text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition flex items-center gap-2">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M3 3h8v8H3V3zm2 2v4h4V5H5zm8-2h8v8h-8V3zm2 2v4h4V5h-4zM3 13h8v8H3v-8zm2 2v4h4v-4H5zm13-2h3v2h-3v-2zm-3 0h2v3h-2v-3zm3 3h3v2h-3v-2zm-3 2h2v3h-2v-3zm3 3h3v2h-3v-2zm-3-1h2v1h-2v-1zm1-4h1v1h-1v-1zm3-3h1v1h-1v-1zm-3 3h1v1h-1v-1z"/></svg>
-                    Cetak QR Check-In
+                    QR
                 </button>
                 <a href="?logout=1" class="px-4 py-2 text-sm font-semibold text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition">Logout</a>
             </div>
