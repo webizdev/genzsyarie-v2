@@ -61,10 +61,10 @@ if (!$logged_in) {
             <a href="?logout=1" class="px-4 py-2 text-sm font-semibold text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition">Logout</a>
         </div>
 
-        <div class="bg-white shadow-sm rounded-2xl overflow-hidden border border-gray-100">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm whitespace-nowrap">
-                    <thead class="bg-gray-50/50 border-b border-gray-100">
+        <div class="bg-transparent md:bg-white shadow-none md:shadow-sm rounded-2xl overflow-hidden border-none md:border border-gray-100">
+            <div class="overflow-x-hidden md:overflow-x-auto">
+                <table class="w-full text-left text-sm whitespace-nowrap block md:table">
+                    <thead class="hidden md:table-header-group bg-gray-50/50 border-b border-gray-100">
                         <tr>
                             <th class="px-6 py-4 font-bold text-gray-600 uppercase text-xs tracking-wider">ID</th>
                             <th class="px-6 py-4 font-bold text-gray-600 uppercase text-xs tracking-wider">Tanggal</th>
@@ -76,7 +76,7 @@ if (!$logged_in) {
                             <th class="px-6 py-4 font-bold text-gray-600 uppercase text-xs tracking-wider">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody id="table-body" class="divide-y divide-gray-50">
+                    <tbody id="table-body" class="flex flex-col md:table-row-group gap-4 md:gap-0 md:divide-y md:divide-gray-50">
                         <tr>
                             <td colspan="8" class="px-6 py-8 text-center text-gray-400 font-medium">Memuat data peserta...</td>
                         </tr>
@@ -111,13 +111,13 @@ if (!$logged_in) {
             tbody.innerHTML = '';
             
             if(rows.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" class="px-6 py-8 text-center text-gray-400 font-medium">Belum ada pendaftar</td></tr>';
+                tbody.innerHTML = '<tr class="block md:table-row"><td colspan="8" class="block md:table-cell px-6 py-8 text-center text-gray-400 font-medium">Belum ada pendaftar</td></tr>';
                 return;
             }
 
             rows.forEach(row => {
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-gray-50/80 transition";
+                tr.className = "flex flex-col md:table-row hover:bg-gray-50/80 transition bg-white rounded-xl shadow-sm md:shadow-none border border-gray-100 md:border-none overflow-hidden mb-4 md:mb-0";
                 
                 // Status Badge styling
                 let statusBadge = '';
@@ -141,21 +141,25 @@ if (!$logged_in) {
                 const dateStr = dateObj.toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year:'numeric', hour:'2-digit', minute:'2-digit'});
 
                 tr.innerHTML = `
-                    <td class="px-6 py-4 text-gray-400 font-mono text-xs">#${row.id}</td>
-                    <td class="px-6 py-4 text-gray-500 text-xs">${dateStr}</td>
-                    <td class="px-6 py-4 font-bold text-gray-900">${row.full_name}</td>
-                    <td class="px-6 py-4">
+                    <td class="px-4 py-3 md:px-6 md:py-4 flex justify-between items-center md:table-cell border-b md:border-none border-gray-100"><span class="md:hidden font-bold text-[10px] text-gray-400 uppercase">ID</span><span class="text-gray-400 font-mono text-xs">#${row.id}</span></td>
+                    <td class="px-4 py-3 md:px-6 md:py-4 flex justify-between items-center md:table-cell border-b md:border-none border-gray-100"><span class="md:hidden font-bold text-[10px] text-gray-400 uppercase">Tanggal</span><span class="text-gray-500 text-xs">${dateStr}</span></td>
+                    <td class="px-4 py-3 md:px-6 md:py-4 flex justify-between items-center md:table-cell border-b md:border-none border-gray-100"><span class="md:hidden font-bold text-[10px] text-gray-400 uppercase">Nama</span><span class="font-bold text-gray-900 truncate max-w-[150px] md:max-w-none text-right md:text-left">${row.full_name}</span></td>
+                    <td class="px-4 py-3 md:px-6 md:py-4 flex justify-between items-center md:table-cell border-b md:border-none border-gray-100">
+                        <span class="md:hidden font-bold text-[10px] text-gray-400 uppercase">Kontak</span>
                         <a href="https://wa.me/${row.whatsapp_number.replace(/^0/, '62')}" target="_blank" class="text-emerald-600 hover:text-emerald-700 font-bold text-sm flex items-center gap-1 group">
                             <svg class="w-4 h-4 group-hover:scale-110 transition" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
                             ${row.whatsapp_number}
                         </a>
                     </td>
-                    <td class="px-6 py-4 text-gray-500 max-w-[200px] truncate text-xs" title="${row.business_activity}">${row.business_activity}</td>
-                    <td class="px-6 py-4">${proofLink}</td>
-                    <td class="px-6 py-4">${statusBadge}</td>
-                    <td class="px-6 py-4 flex gap-2">
-                        <button onclick="updateStatus(${row.id}, 'confirmed')" class="px-3 py-1.5 bg-gray-900 text-white hover:bg-black rounded border border-transparent text-xs font-bold transition">Confirm</button>
-                        <button onclick="updateStatus(${row.id}, 'tolak')" class="px-3 py-1.5 bg-white text-red-600 hover:bg-red-50 rounded border border-red-200 text-xs font-bold transition">Tolak</button>
+                    <td class="px-4 py-3 md:px-6 md:py-4 flex justify-between items-center md:table-cell border-b md:border-none border-gray-100"><span class="md:hidden font-bold text-[10px] text-gray-400 uppercase">Bisnis</span><span class="text-gray-500 max-w-[150px] md:max-w-[200px] truncate text-xs text-right md:text-left" title="${row.business_activity}">${row.business_activity}</span></td>
+                    <td class="px-4 py-3 md:px-6 md:py-4 flex justify-between items-center md:table-cell border-b md:border-none border-gray-100"><span class="md:hidden font-bold text-[10px] text-gray-400 uppercase">Bukti</span><span class="flex justify-end md:block">${proofLink}</span></td>
+                    <td class="px-4 py-3 md:px-6 md:py-4 flex justify-between items-center md:table-cell border-b md:border-none border-gray-100"><span class="md:hidden font-bold text-[10px] text-gray-400 uppercase">Status</span><span class="flex justify-end md:block">${statusBadge}</span></td>
+                    <td class="px-4 py-3 md:px-6 md:py-4 flex justify-between md:justify-start items-center md:table-cell pt-4 md:pt-4">
+                        <span class="md:hidden font-bold text-[10px] text-gray-400 uppercase">Aksi</span>
+                        <div class="flex gap-2 justify-end w-full md:w-auto">
+                            <button onclick="updateStatus(${row.id}, 'confirmed')" class="px-3 py-1.5 bg-gray-900 text-white hover:bg-black rounded border border-transparent text-xs font-bold transition w-full md:w-auto text-center">Confirm</button>
+                            <button onclick="updateStatus(${row.id}, 'tolak')" class="px-3 py-1.5 bg-white text-red-600 hover:bg-red-50 rounded border border-red-200 text-xs font-bold transition w-full md:w-auto text-center">Tolak</button>
+                        </div>
                     </td>
                 `;
                 tbody.appendChild(tr);
