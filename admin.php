@@ -172,6 +172,7 @@ if (!$logged_in) {
                     <td class="px-6 py-4 flex gap-2">
                         <button onclick="updateStatus(${row.id}, 'confirmed')" class="px-3 py-1.5 bg-gray-900 text-white hover:bg-black rounded border border-transparent text-xs font-bold transition">Confirm</button>
                         <button onclick="updateStatus(${row.id}, 'tolak')" class="px-3 py-1.5 bg-white text-red-600 hover:bg-red-50 rounded border border-red-200 text-xs font-bold transition">Tolak</button>
+                        <button onclick="deleteRow(${row.id}, '${row.full_name}')" class="px-3 py-1.5 bg-red-600 text-white hover:bg-red-700 rounded border border-transparent text-xs font-bold transition" title="Hapus peserta">&times;</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -184,6 +185,25 @@ if (!$logged_in) {
             document.getElementById('stat-total').textContent = total;
             document.getElementById('stat-confirmed').textContent = confirmed;
             document.getElementById('stat-pending').textContent = pending;
+        }
+
+        function deleteRow(id, name) {
+            if(!confirm(`Hapus peserta "${name}" secara permanen?\nData yang dihapus tidak dapat dikembalikan.`)) return;
+
+            fetch('/api.php', {
+                method: 'DELETE',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({id: id})
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    loadData();
+                } else {
+                    alert('Gagal menghapus: ' + data.message);
+                }
+            })
+            .catch(err => alert('Error: ' + err));
         }
 
         function updateStatus(id, newStatus) {

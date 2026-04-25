@@ -6,7 +6,7 @@
 
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST, GET, PUT, OPTIONS');
+header('Access-Control-Allow-Methods: POST, GET, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -100,6 +100,27 @@ switch ($method) {
 
         if ($stmt->execute()) {
             echo json_encode(['success' => true, 'message' => 'Status berhasil diupdate']);
+        } else {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Database error: ' . $stmt->error]);
+        }
+        $stmt->close();
+        break;
+
+    case 'DELETE':
+        $id = intval($input['id'] ?? 0);
+
+        if ($id === 0) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'ID tidak valid']);
+            exit;
+        }
+
+        $stmt = $conn->prepare('DELETE FROM registrations WHERE id = ?');
+        $stmt->bind_param('i', $id);
+
+        if ($stmt->execute()) {
+            echo json_encode(['success' => true, 'message' => 'Data peserta berhasil dihapus']);
         } else {
             http_response_code(500);
             echo json_encode(['success' => false, 'message' => 'Database error: ' . $stmt->error]);
