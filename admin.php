@@ -111,6 +111,9 @@ if (!$logged_in) {
         </div>
     </div>
 
+    <!-- Hidden input for manual upload -->
+    <input type="file" id="manual-upload-input" style="display:none" accept="image/*,.pdf" onchange="handleManualUpload(this)">
+
     <!-- Modal Konfirmasi Hapus -->
     <div id="delete-modal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 backdrop-blur-sm p-4" style="display:none;">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
@@ -162,11 +165,19 @@ if (!$logged_in) {
                 else statusBadge = '<span class="px-3 py-1 rounded-md bg-amber-100 text-amber-700 text-xs font-bold uppercase tracking-wider border border-amber-200">Pending</span>';
 
                 // Proof link
-                let proofLink = '<span class="text-gray-400 italic text-xs font-medium bg-gray-100 px-2 py-1 rounded">Belum Upload</span>';
+                let proofLink = `
+                    <div class="flex flex-col gap-1">
+                        <span class="text-gray-400 italic text-xs font-medium bg-gray-100 px-2 py-1 rounded w-fit">Belum Upload</span>
+                        <button onclick="triggerManualUpload('${row.whatsapp_number}')" class="text-[10px] text-indigo-600 hover:text-indigo-800 font-bold text-left transition flex items-center gap-0.5">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                            Upload Manual
+                        </button>
+                    </div>
+                `;
                 if(row.payment_proof) {
                     const isPdf = row.payment_proof.toLowerCase().endsWith('.pdf');
                     if(isPdf) {
-                        proofLink = `<a href="/uploads/${row.payment_proof}" target="_blank" class="text-blue-600 hover:text-blue-800 font-bold text-xs bg-blue-50 px-3 py-1.5 rounded-md border border-blue-100 transition">Buka PDF</a>`;
+                        proofLink = `<a href="/uploads/${row.payment_proof}" target="_blank" class="text-blue-600 hover:text-blue-800 font-bold text-xs bg-blue-50 px-3 py-1.5 rounded-md border border-blue-100 transition inline-block">Buka PDF</a>`;
                     } else {
                         proofLink = `<button onclick="openModal('/uploads/${row.payment_proof}')" class="text-indigo-600 hover:text-indigo-800 font-bold text-xs bg-indigo-50 px-3 py-1.5 rounded-md border border-indigo-100 transition">Lihat Gambar</button>`;
                     }
@@ -205,6 +216,42 @@ if (!$logged_in) {
             document.getElementById('stat-total').textContent = total;
             document.getElementById('stat-confirmed').textContent = confirmed;
             document.getElementById('stat-pending').textContent = pending;
+        }
+
+        let _uploadingWhatsapp = null;
+        function triggerManualUpload(whatsapp) {
+            _uploadingWhatsapp = whatsapp;
+            document.getElementById('manual-upload-input').click();
+        }
+
+        function handleManualUpload(input) {
+            if (!input.files || !input.files[0] || !_uploadingWhatsapp) return;
+            
+            const file = input.files[0];
+            const formData = new FormData();
+            formData.append('payment_proof', file);
+            formData.append('whatsapp', _uploadingWhatsapp);
+
+            // Overlay loading simple
+            const btn = event ? event.target : null;
+            
+            fetch('/upload_proof.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    loadData();
+                } else {
+                    alert('Gagal upload: ' + data.message);
+                }
+            })
+            .catch(err => alert('Error: ' + err))
+            .finally(() => {
+                input.value = '';
+                _uploadingWhatsapp = null;
+            });
         }
 
         let _deleteId = null;
