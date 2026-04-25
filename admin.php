@@ -87,11 +87,11 @@ if (!$logged_in) {
     </div>
 
     <!-- Modal Bukti Transfer -->
-    <div id="image-modal" class="fixed inset-0 bg-black/90 hidden items-center justify-center z-50 p-4 backdrop-blur-sm">
-        <div class="relative max-w-3xl w-full flex flex-col items-center">
-            <button onclick="closeModal()" class="absolute -top-12 right-0 text-white/50 hover:text-white font-bold text-sm tracking-widest uppercase transition">&times; Tutup</button>
-            <img id="modal-image" src="" class="max-w-full max-h-[85vh] rounded-lg shadow-2xl" alt="Bukti Transfer">
-            <a id="modal-download" href="" download class="mt-6 px-6 py-2 bg-white text-black font-bold rounded-full text-sm hover:bg-gray-200 transition">Download Resi</a>
+    <div id="image-modal" class="fixed inset-0 bg-black/90 hidden z-50 overflow-y-auto backdrop-blur-sm" style="display:none;">
+        <div class="relative max-w-3xl w-full flex flex-col items-center mx-auto py-16 px-4 min-h-full">
+            <button onclick="closeModal()" class="sticky top-4 self-end text-white/60 hover:text-white font-bold text-sm tracking-widest uppercase transition bg-black/40 px-3 py-1.5 rounded-lg mb-4 z-10">&times; Tutup</button>
+            <img id="modal-image" src="" class="max-w-full w-full rounded-lg shadow-2xl" style="height:auto;" alt="Bukti Transfer">
+            <a id="modal-download" href="" download class="mt-6 mb-4 px-6 py-2 bg-white text-black font-bold rounded-full text-sm hover:bg-gray-200 transition">Download Resi</a>
         </div>
     </div>
 
@@ -189,11 +189,15 @@ if (!$logged_in) {
         function openModal(src) {
             document.getElementById('modal-image').src = src;
             document.getElementById('modal-download').href = src;
-            document.getElementById('image-modal').style.display = 'flex';
+            const modal = document.getElementById('image-modal');
+            modal.style.display = 'block';
+            modal.scrollTop = 0;
+            document.body.style.overflow = 'hidden';
         }
 
         function closeModal() {
             document.getElementById('image-modal').style.display = 'none';
+            document.body.style.overflow = '';
         }
 
         document.getElementById('image-modal').addEventListener('click', function(e) {
