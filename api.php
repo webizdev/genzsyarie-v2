@@ -5,6 +5,8 @@
  */
 
 header('Content-Type: application/json');
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, GET, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
@@ -50,9 +52,6 @@ $method = $_SERVER['REQUEST_METHOD'];
 $input = json_decode(file_get_contents('php://input'), true);
 
 switch ($method) {
-        $stmt->close();
-        break;
-
     case 'POST':
         // Handle Check-in
         if (isset($_GET['action']) && $_GET['action'] === 'checkin') {
