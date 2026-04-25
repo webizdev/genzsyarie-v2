@@ -45,7 +45,7 @@
                 </button>
             </div>
             
-            <p class="text-xs text-gray-400 font-bold uppercase tracking-widest pt-8">Powered by Antigravity AI</p>
+            <p class="text-xs text-gray-400 font-bold uppercase tracking-widest pt-8">Syirkah Bisnis Mastery</p>
         </div>
 
         <!-- Result State (Hidden by default) -->
