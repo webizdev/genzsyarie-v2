@@ -111,6 +111,26 @@ if (!$logged_in) {
         </div>
     </div>
 
+    <!-- Modal Konfirmasi Hapus -->
+    <div id="delete-modal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 backdrop-blur-sm p-4" style="display:none;">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600 text-lg font-black flex-shrink-0">&times;</div>
+                <div>
+                    <h3 class="font-black text-gray-900 text-lg">Hapus Peserta</h3>
+                    <p id="delete-modal-name" class="text-gray-500 text-sm"></p>
+                </div>
+            </div>
+            <p class="text-gray-600 text-sm mb-5">Tindakan ini <strong>tidak dapat dibatalkan</strong>. Data peserta akan dihapus secara permanen dari database.</p>
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Ketik <span class="text-red-600 font-black">hapus</span> untuk melanjutkan</label>
+            <input id="delete-confirm-input" type="text" placeholder="hapus" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:border-red-400 mb-5 transition" autocomplete="off" />
+            <div class="flex gap-3">
+                <button onclick="closeDeleteModal()" class="flex-1 px-4 py-3 bg-gray-100 text-gray-700 font-bold rounded-xl text-sm hover:bg-gray-200 transition">Batal</button>
+                <button id="delete-confirm-btn" onclick="confirmDelete()" class="flex-1 px-4 py-3 bg-red-600 text-white font-bold rounded-xl text-sm hover:bg-red-700 transition disabled:opacity-40 disabled:cursor-not-allowed" disabled>Hapus Permanen</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         function loadData() {
             fetch('/api.php')
@@ -187,23 +207,49 @@ if (!$logged_in) {
             document.getElementById('stat-pending').textContent = pending;
         }
 
+        let _deleteId = null;
+
         function deleteRow(id, name) {
-            if(!confirm(`Hapus peserta "${name}" secara permanen?\nData yang dihapus tidak dapat dikembalikan.`)) return;
+            _deleteId = id;
+            document.getElementById('delete-modal-name').textContent = name;
+            document.getElementById('delete-confirm-input').value = '';
+            document.getElementById('delete-confirm-btn').disabled = true;
+            document.getElementById('delete-modal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            setTimeout(() => document.getElementById('delete-confirm-input').focus(), 100);
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('delete-modal').style.display = 'none';
+            document.body.style.overflow = '';
+            _deleteId = null;
+        }
+
+        document.getElementById('delete-confirm-input').addEventListener('input', function() {
+            document.getElementById('delete-confirm-btn').disabled = this.value.trim().toLowerCase() !== 'hapus';
+        });
+
+        function confirmDelete() {
+            if (!_deleteId) return;
+            const btn = document.getElementById('delete-confirm-btn');
+            btn.textContent = 'Menghapus...';
+            btn.disabled = true;
 
             fetch('/api.php', {
                 method: 'DELETE',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({id: id})
+                body: JSON.stringify({id: _deleteId})
             })
             .then(res => res.json())
             .then(data => {
+                closeDeleteModal();
                 if(data.success) {
                     loadData();
                 } else {
                     alert('Gagal menghapus: ' + data.message);
                 }
             })
-            .catch(err => alert('Error: ' + err));
+            .catch(err => { closeDeleteModal(); alert('Error: ' + err); });
         }
 
         function updateStatus(id, newStatus) {
