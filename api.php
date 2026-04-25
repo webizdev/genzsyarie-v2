@@ -40,7 +40,10 @@ $conn->query("CREATE TABLE IF NOT EXISTS site_stats (
 $conn->query("INSERT IGNORE INTO site_stats (stat_key, stat_value) VALUES ('page_view', 0), ('click_register', 0), ('click_wa', 0)");
 
 // Auto-init checked_in_at column in registrations
-$conn->query("ALTER TABLE registrations ADD COLUMN IF NOT EXISTS checked_in_at DATETIME DEFAULT NULL");
+$checkColumn = $conn->query("SHOW COLUMNS FROM `registrations` LIKE 'checked_in_at'");
+if ($checkColumn && $checkColumn->num_rows === 0) {
+    $conn->query("ALTER TABLE registrations ADD checked_in_at DATETIME DEFAULT NULL");
+}
 
 // Parse request
 $method = $_SERVER['REQUEST_METHOD'];
