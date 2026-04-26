@@ -45,6 +45,12 @@ if ($checkColumn && $checkColumn->num_rows === 0) {
     $conn->query("ALTER TABLE registrations ADD checked_in_at DATETIME DEFAULT NULL");
 }
 
+// Auto-init gender column
+$checkGender = $conn->query("SHOW COLUMNS FROM `registrations` LIKE 'gender'");
+if ($checkGender && $checkGender->num_rows === 0) {
+    $conn->query("ALTER TABLE registrations ADD gender VARCHAR(20) DEFAULT NULL AFTER full_name");
+}
+
 // Parse request
 $method = $_SERVER['REQUEST_METHOD'];
 $input = json_decode(file_get_contents('php://input'), true);
@@ -100,6 +106,7 @@ switch ($method) {
 
         // Create new registration (Original POST logic)
         $full_name = trim($input['full_name'] ?? '');
+        $gender = trim($input['gender'] ?? '');
         $whatsapp = trim($input['whatsapp_number'] ?? '');
         $address = trim($input['corporate_address'] ?? '');
         $business_activity = trim($input['business_activity'] ?? '');
@@ -123,9 +130,9 @@ switch ($method) {
         }
         $checkStmt->close();
 
-        $stmt = $conn->prepare('INSERT INTO registrations (full_name, whatsapp_number, corporate_address, business_activity, status) VALUES (?, ?, ?, ?, ?)');
+        $stmt = $conn->prepare('INSERT INTO registrations (full_name, gender, whatsapp_number, corporate_address, business_activity, status) VALUES (?, ?, ?, ?, ?, ?)');
         $status = 'pending';
-        $stmt->bind_param('sssss', $full_name, $whatsapp, $address, $business_activity, $status);
+        $stmt->bind_param('ssssss', $full_name, $gender, $whatsapp, $address, $business_activity, $status);
 
         if ($stmt->execute()) {
             http_response_code(201);
