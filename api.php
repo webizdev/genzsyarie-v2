@@ -111,9 +111,9 @@ switch ($method) {
         $address = trim($input['corporate_address'] ?? '');
         $business_activity = trim($input['business_activity'] ?? '');
 
-        if (empty($full_name) || empty($whatsapp) || empty($address) || empty($business_activity)) {
+        if (empty($full_name) || empty($gender) || empty($whatsapp) || empty($address) || empty($business_activity)) {
             http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'Semua field wajib diisi']);
+            echo json_encode(['success' => false, 'message' => 'Semua field wajib diisi, termasuk gender']);
             exit;
         }
 

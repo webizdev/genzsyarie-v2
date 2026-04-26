@@ -483,6 +483,11 @@
           const body = JSON.parse(arguments[1].body);
           const genderSelect = document.getElementById('gender-select');
           if (genderSelect) {
+            if (!genderSelect.value) {
+              alert('Silakan pilih gender (Ikhwan/Akhwat) terlebih dahulu!');
+              // We return a rejected promise to stop the fetch
+              return Promise.reject('Gender is required');
+            }
             body.gender = genderSelect.value;
             arguments[1].body = JSON.stringify(body);
             console.log('Gender data appended to request:', body.gender);
