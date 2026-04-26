@@ -31,24 +31,30 @@ if ($conn->connect_error) {
 
 $conn->set_charset('utf8mb4');
 
-// Auto-init site_stats table
-$conn->query("CREATE TABLE IF NOT EXISTS site_stats (
-    stat_key VARCHAR(50) PRIMARY KEY,
-    stat_value INT DEFAULT 0
-)");
-// Ensure initial keys exist
-$conn->query("INSERT IGNORE INTO site_stats (stat_key, stat_value) VALUES ('page_view', 0), ('click_register', 0), ('click_wa', 0)");
+// Database Migration (Only run if requested via ?migrate=1 to save performance)
+if (isset($_GET['migrate']) && $_GET['migrate'] === '1') {
+    // site_stats
+    $conn->query("CREATE TABLE IF NOT EXISTS site_stats (stat_key VARCHAR(50) PRIMARY KEY, stat_value INT DEFAULT 0)");
+    $conn->query("INSERT IGNORE INTO site_stats (stat_key, stat_value) VALUES ('page_view', 0), ('click_register', 0), ('click_wa', 0)");
+    
+    // checked_in_at
+    $checkColumn = $conn->query("SHOW COLUMNS FROM `registrations` LIKE 'checked_in_at'");
+    if ($checkColumn && $checkColumn->num_rows === 0) {
+        $conn->query("ALTER TABLE registrations ADD checked_in_at DATETIME DEFAULT NULL");
+    }
+    
+    // gender
+    $checkGender = $conn->query("SHOW COLUMNS FROM `registrations` LIKE 'gender'");
+    if ($checkGender && $checkGender->num_rows === 0) {
+        $conn->query("ALTER TABLE registrations ADD gender VARCHAR(20) DEFAULT NULL AFTER full_name");
+    }
 
-// Auto-init checked_in_at column in registrations
-$checkColumn = $conn->query("SHOW COLUMNS FROM `registrations` LIKE 'checked_in_at'");
-if ($checkColumn && $checkColumn->num_rows === 0) {
-    $conn->query("ALTER TABLE registrations ADD checked_in_at DATETIME DEFAULT NULL");
-}
+    // Add Index for performance
+    $conn->query("ALTER TABLE registrations ADD INDEX IF NOT EXISTS idx_created_at (created_at)");
+    $conn->query("ALTER TABLE registrations ADD INDEX IF NOT EXISTS idx_whatsapp (whatsapp_number)");
 
-// Auto-init gender column
-$checkGender = $conn->query("SHOW COLUMNS FROM `registrations` LIKE 'gender'");
-if ($checkGender && $checkGender->num_rows === 0) {
-    $conn->query("ALTER TABLE registrations ADD gender VARCHAR(20) DEFAULT NULL AFTER full_name");
+    echo json_encode(['success' => true, 'message' => 'Migration completed']);
+    exit;
 }
 
 // Parse request
