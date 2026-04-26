@@ -292,7 +292,7 @@
                   <button class="copy-btn" onclick="navigator.clipboard.writeText('7183513804'); this.innerText='Tercopy!'; setTimeout(()=>this.innerText='Copy', 2000)" style="background: #c5a059; color: #000; border: none; padding: 6px 12px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; text-transform: uppercase;">Copy</button>
                 </div>
               </div>
-
+              
               <hr style="border: none; border-top: 1px solid rgba(197, 160, 89, 0.2); margin: 10px 0;" />
 
               <h4 style="color: #000; font-size: 14px; font-weight: 900; margin-top: 0; margin-bottom: 6px; text-transform: uppercase;">Upload Bukti Transfer</h4>
@@ -480,6 +480,22 @@
 
     initGenderField();
     // --- END GENDER FIELD ---
+
+    // --- HTMRATE IMAGE REPLACEMENT ---
+    function initHtmrateReplacement() {
+      const observer = new MutationObserver(() => {
+        const images = document.querySelectorAll('img[src*="htmrate"]');
+        images.forEach(img => {
+          if (!img.src.includes('htmrate2.png')) {
+            img.src = 'assets/htmrate2.png';
+            console.log('Htmrate image replaced with htmrate2.png');
+          }
+        });
+      });
+      observer.observe(document.body, { childList: true, subtree: true });
+    }
+    initHtmrateReplacement();
+    // --- END HTMRATE ---
 
     // Fast loading screen hide
     window.addEventListener('load', () => {
