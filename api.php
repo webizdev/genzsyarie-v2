@@ -63,17 +63,44 @@ $input = json_decode(file_get_contents('php://input'), true);
 
 switch ($method) {
     case 'POST':
-        // Handle Check-in
-        if (isset($_GET['action']) && $_GET['action'] === 'checkin') {
+        // Handle Search for Check-in
+        if (isset($_GET['action']) && $_GET['action'] === 'search_wa') {
             $whatsapp = trim($input['whatsapp'] ?? '');
             if (empty($whatsapp)) {
                 echo json_encode(['success' => false, 'message' => 'Nomor WhatsApp diperlukan']);
                 break;
             }
 
-            // Check if participant exists and is confirmed
             $stmt = $conn->prepare("SELECT id, full_name, checked_in_at FROM registrations WHERE whatsapp_number = ? AND status = 'confirmed'");
             $stmt->bind_param('s', $whatsapp);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $users = [];
+            while($row = $result->fetch_assoc()) {
+                $users[] = $row;
+            }
+            $stmt->close();
+
+            if (empty($users)) {
+                http_response_code(404);
+                echo json_encode(['success' => false, 'message' => 'Peserta tidak ditemukan atau belum dikonfirmasi']);
+            } else {
+                echo json_encode(['success' => true, 'data' => $users]);
+            }
+            break;
+        }
+
+        // Handle Check-in
+        if (isset($_GET['action']) && $_GET['action'] === 'checkin') {
+            $id = intval($input['id'] ?? 0);
+            if ($id === 0) {
+                echo json_encode(['success' => false, 'message' => 'ID peserta diperlukan']);
+                break;
+            }
+
+            // Check if participant exists and is confirmed
+            $stmt = $conn->prepare("SELECT id, full_name, checked_in_at FROM registrations WHERE id = ? AND status = 'confirmed'");
+            $stmt->bind_param('i', $id);
             $stmt->execute();
             $result = $stmt->get_result();
             $user = $result->fetch_assoc();

@@ -48,6 +48,18 @@
             <p class="text-xs text-gray-400 font-bold uppercase tracking-widest pt-8">Syirkah Bisnis Mastery</p>
         </div>
 
+        <!-- List State (Hidden by default) -->
+        <div id="list-container" class="hidden space-y-6 py-12 animate-in fade-in zoom-in duration-500">
+            <h2 class="text-3xl font-black text-gray-900 mb-2">Pilih Peserta</h2>
+            <p class="text-gray-500 font-medium mb-8">Ditemukan beberapa peserta dengan nomor ini</p>
+            <div id="participant-list" class="space-y-4">
+                <!-- List will be injected here -->
+            </div>
+            <button onclick="resetUI()" class="mt-8 text-gray-500 font-bold hover:text-gray-900 transition-colors">
+                Batal
+            </button>
+        </div>
+
         <!-- Result State (Hidden by default) -->
         <div id="result-container" class="hidden py-12 animate-in fade-in zoom-in duration-500">
              <div id="result-icon-bg" class="mb-10 mx-auto w-32 h-32 rounded-full flex items-center justify-center text-white text-6xl shadow-2xl card-blur">
@@ -77,21 +89,20 @@
             if (!wa) return;
 
             const btn = document.getElementById('submit-btn');
-            const input = document.getElementById('wa-input');
             
             btn.disabled = true;
-            btn.textContent = 'MEMPROSES...';
+            btn.textContent = 'MENCARI...';
             btn.classList.add('opacity-50');
 
-            fetch('api.php?action=checkin', {
+            fetch('api.php?action=search_wa', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ whatsapp: wa })
             })
             .then(res => res.json().then(data => ({ status: res.status, data })))
             .then(({ status, data }) => {
-                if (status === 200 && data.success) {
-                    showSuccess(data);
+                if (status === 200 && data.success && data.data) {
+                    showParticipantList(data.data);
                 } else {
                     showError(data.message || 'Nomor tidak terdaftar atau belum dikonfirmasi');
                 }
@@ -104,9 +115,69 @@
             });
         }
 
+        function showParticipantList(participants) {
+            document.body.className = 'state-waiting flex items-center justify-center min-h-screen p-6';
+            document.getElementById('form-container').classList.add('hidden');
+            document.getElementById('result-container').classList.add('hidden');
+            document.getElementById('list-container').classList.remove('hidden');
+
+            const listDiv = document.getElementById('participant-list');
+            listDiv.innerHTML = '';
+
+            participants.forEach(p => {
+                const card = document.createElement('div');
+                card.className = 'bg-white p-5 rounded-3xl border-2 border-gray-100 shadow-sm flex flex-col sm:flex-row justify-between items-center gap-4 transition-all hover:border-gray-300';
+                
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'font-bold text-gray-900 text-lg text-center sm:text-left';
+                nameDiv.textContent = p.full_name;
+
+                const btn = document.createElement('button');
+                if (p.checked_in_at !== null) {
+                    btn.className = 'w-full sm:w-auto px-6 py-3 rounded-2xl font-bold bg-gray-100 text-gray-400 cursor-not-allowed';
+                    btn.textContent = 'Sudah Hadir';
+                    btn.disabled = true;
+                } else {
+                    btn.className = 'w-full sm:w-auto px-6 py-3 rounded-2xl font-bold bg-gray-900 text-white hover:bg-black transition-colors';
+                    btn.textContent = 'Check In';
+                    btn.onclick = () => confirmCheckin(p.id);
+                }
+
+                card.appendChild(nameDiv);
+                card.appendChild(btn);
+                listDiv.appendChild(card);
+            });
+        }
+
+        function confirmCheckin(id) {
+            document.getElementById('list-container').classList.add('opacity-50', 'pointer-events-none');
+
+            fetch('api.php?action=checkin', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: id })
+            })
+            .then(res => res.json().then(data => ({ status: res.status, data })))
+            .then(({ status, data }) => {
+                document.getElementById('list-container').classList.remove('opacity-50', 'pointer-events-none');
+                if (status === 200 && data.success) {
+                    showSuccess(data);
+                } else {
+                    showError(data.message || 'Gagal check-in');
+                }
+            })
+            .catch(err => {
+                document.getElementById('list-container').classList.remove('opacity-50', 'pointer-events-none');
+                showError('Gangguan koneksi server');
+            });
+        }
+
         function showSuccess(data) {
             document.body.className = 'state-success flex items-center justify-center min-h-screen p-6';
             document.getElementById('form-container').classList.add('hidden');
+            if (document.getElementById('list-container')) {
+                document.getElementById('list-container').classList.add('hidden');
+            }
             document.getElementById('result-container').classList.remove('hidden');
             
             document.getElementById('result-icon').textContent = '✓';
@@ -117,6 +188,9 @@
         function showError(msg) {
             document.body.className = 'state-error flex items-center justify-center min-h-screen p-6';
             document.getElementById('form-container').classList.add('hidden');
+            if (document.getElementById('list-container')) {
+                document.getElementById('list-container').classList.add('hidden');
+            }
             document.getElementById('result-container').classList.remove('hidden');
             
             document.getElementById('result-icon').textContent = '✕';
@@ -128,6 +202,9 @@
             document.body.className = 'state-waiting flex items-center justify-center min-h-screen p-6';
             document.getElementById('form-container').classList.remove('hidden');
             document.getElementById('result-container').classList.add('hidden');
+            if (document.getElementById('list-container')) {
+                document.getElementById('list-container').classList.add('hidden');
+            }
             document.getElementById('wa-input').value = '';
             // Clear URL param without reload
             window.history.replaceState({}, document.title, window.location.pathname);
